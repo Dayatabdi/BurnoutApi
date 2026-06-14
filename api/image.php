@@ -1,27 +1,26 @@
 <?php
-// Endpoint untuk mengambil gambar
-// Contoh akses: image.php?id=img_xxxxx
+require_once 'db_config.php';
 
-$imageId = $_GET['id'] ?? '';
-
-if (empty($imageId)) {
+$id = $_GET['id'] ?? '';
+if (empty($id)) {
     http_response_code(400);
-    exit('Image ID diperlukan');
+    exit;
 }
 
-// Sanitasi — hanya huruf, angka, underscore, titik
-if (!preg_match('/^[a-zA-Z0-9_.]+$/', $imageId)) {
-    http_response_code(400);
-    exit('ID tidak valid');
-}
+$conn = getConnection();
+$stmt = $conn->prepare("SELECT image_data FROM burnout_records WHERE id = ?");
+$stmt->bind_param("s", $id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-$path = __DIR__ . '/images/' . $imageId . '.jpg';
-
-if (!file_exists($path)) {
+if ($result->num_rows === 0) {
     http_response_code(404);
-    exit('Gambar tidak ditemukan');
+    exit;
 }
 
-header('Content-Type: image/jpeg');
-header('Content-Length: ' . filesize($path));
-readfile($path);
+$row = $result->fetch_assoc();
+$imageData = $row['image_data'];
+$conn->close();
+
+header("Content-Type: image/jpeg");
+echo base64_decode($imageData);
