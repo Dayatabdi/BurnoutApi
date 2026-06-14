@@ -1,0 +1,11 @@
+{
+    "functions": {
+      "api/*.php": {
+        "runtime": "vercel-php@0.7.1"
+      }
+    },
+    "routes": [
+      { "src": "/burnout.php", "dest": "/api/burnout.php" },
+      { "src": "/image.php", "dest": "/api/image.php" }
+    ]
+  }
