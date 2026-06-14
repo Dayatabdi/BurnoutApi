@@ -47,7 +47,7 @@ if ($method === 'GET') {
 } elseif ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
     $id               = $_POST['id'] ?? '';
     $nama             = $_POST['nama'] ?? '';
-    $jamTidur         = (float)($_POST['jam_tidur'] ?? 0); // cast ke float!
+    $jamTidur         = (float)($_POST['jam_tidur'] ?? 0);
     $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
     $sulitFokus       = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
     $susahTidur       = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
@@ -57,12 +57,33 @@ if ($method === 'GET') {
     $stresLevel       = $_POST['stres_level'] ?? '';
     $skor             = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
 
+    // Debug log
+    error_log("UPDATE - id: $id, userId: $userId, nama: $nama");
+
     if (empty($id) || empty($nama) || empty($stresLevel)) {
-        echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
+        echo json_encode(["status" => "error", "message" => "Data tidak lengkap", "id" => $id, "userId" => $userId]);
         exit;
     }
 
     $conn = getConnection();
+
+    // Cek dulu apakah data ada
+    $check = $conn->prepare("SELECT id FROM burnout_records WHERE id = ? AND user_id = ?");
+    $check->bind_param("ss", $id, $userId);
+    $check->execute();
+    $checkResult = $check->get_result();
+
+    if ($checkResult->num_rows === 0) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Data tidak ditemukan",
+            "id" => $id,
+            "userId" => $userId
+        ]);
+        $conn->close();
+        exit;
+    }
+
     $stmt = $conn->prepare(
         "UPDATE burnout_records SET
             nama=?, jam_tidur=?, mudah_lelah=?, sulit_fokus=?,
@@ -79,13 +100,17 @@ if ($method === 'GET') {
     );
 
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Data berhasil diubah"]);
+        echo json_encode([
+            "status" => "success",
+            "message" => "Data berhasil diubah",
+            "affected_rows" => $stmt->affected_rows
+        ]);
     } else {
         echo json_encode(["status" => "error", "message" => $conn->error]);
     }
     $conn->close();
-}
-elseif ($method === 'POST') {
+
+} elseif ($method === 'POST') {
     $nama             = $_POST['nama'] ?? '';
     $jamTidur         = $_POST['jam_tidur'] ?? '';
     $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
