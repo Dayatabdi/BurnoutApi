@@ -15,14 +15,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $conn = getConnection();
-  $stmt = $conn->prepare(
-    "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
-            mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
-            skor, tanggal, image_data,
-            IF(user_id = ?, 1, 0) as mine
-     FROM burnout_records
-     ORDER BY tanggal DESC"
-);
+    $stmt = $conn->prepare(
+        "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
+                mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
+                skor, tanggal, image_data,
+                IF(user_id = ?, 1, 0) as mine
+         FROM burnout_records
+         ORDER BY tanggal DESC"
+    );
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -61,28 +61,28 @@ if ($method === 'GET') {
         exit;
     }
 
-    // Handle upload gambar
- $imageData = null;
-if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    $imageData = base64_encode(file_get_contents($_FILES['image']['tmp_name']));
-}
+    // Handle upload gambar sebagai Base64
+    $imageData = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $imageData = base64_encode(file_get_contents($_FILES['image']['tmp_name']));
+    }
 
-   $id = uniqid('bo_', true);
-$conn = getConnection();
-$stmt = $conn->prepare(
-    "INSERT INTO burnout_records
-     (id, user_id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
-      mudah_marah, tidak_bersemangat, overwhelmed, stres_level, skor, image_data)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-);
-$stmt->bind_param(
-    "sssdiiiiiisis",
-    $id, $userId, $nama, $jamTidur,
-    $mudahLelah, $sulitFokus, $susahTidur,
-    $mudahMarah, $tidakBersemangat, $overwhelmed,
-    $stresLevel, $skor, $imageData
-);
-    
+    $id = uniqid('bo_', true);
+    $conn = getConnection();
+    $stmt = $conn->prepare(
+        "INSERT INTO burnout_records
+         (id, user_id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
+          mudah_marah, tidak_bersemangat, overwhelmed, stres_level, skor, image_data)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    $stmt->bind_param(
+        "sssdiiiiiisis",
+        $id, $userId, $nama, $jamTidur,
+        $mudahLelah, $sulitFokus, $susahTidur,
+        $mudahMarah, $tidakBersemangat, $overwhelmed,
+        $stresLevel, $skor, $imageData
+    );
+
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Data berhasil disimpan"]);
     } else {
@@ -99,8 +99,8 @@ $stmt->bind_param(
 
     $conn = getConnection();
 
-    // Cek kepemilikan & ambil image_id
-    $stmt = $conn->prepare("SELECT image_id FROM burnout_records WHERE id = ? AND user_id = ?");
+    // Cek kepemilikan
+    $stmt = $conn->prepare("SELECT id FROM burnout_records WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ss", $id, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -111,19 +111,11 @@ $stmt->bind_param(
         exit;
     }
 
-    $row = $result->fetch_assoc();
-    $imageId = $row['image_id'];
-
     // Hapus record
     $stmt2 = $conn->prepare("DELETE FROM burnout_records WHERE id = ? AND user_id = ?");
     $stmt2->bind_param("ss", $id, $userId);
 
     if ($stmt2->execute()) {
-        // Hapus file gambar kalau ada
-        if ($imageId) {
-            $imgPath = __DIR__ . '/images/' . $imageId . '.jpg';
-            if (file_exists($imgPath)) unlink($imgPath);
-        }
         echo json_encode(["status" => "success", "message" => "Data berhasil dihapus"]);
     } else {
         echo json_encode(["status" => "error", "message" => $conn->error]);
