@@ -17,11 +17,11 @@ if ($method === 'GET') {
     $conn = getConnection();
     $stmt = $conn->prepare(
         "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
-        mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
-        skor, tanggal,
-        IF(user_id = ?, 1, 0) as mine
- FROM burnout_records
- ORDER BY tanggal DESC"
+                mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
+                skor, tanggal,
+                IF(user_id = ?, 1, 0) as mine
+         FROM burnout_records
+         ORDER BY tanggal DESC"
     );
     $stmt->bind_param("s", $userId);
     $stmt->execute();
@@ -44,19 +44,18 @@ if ($method === 'GET') {
     echo json_encode($data);
     $conn->close();
 
-// PERBAIKAN: Hapus kelebihan kurung kurawal dan tulisan komentar yang nyangkut
 } elseif ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
-    $id                = $_POST['id'] ?? '';
-    $nama              = $_POST['nama'] ?? '';
-    $jamTidur          = $_POST['jam_tidur'] ?? '';
-    $mudahLelah        = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
-    $sulitFokus        = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
-    $susahTidur        = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
-    $mudahMarah        = isset($_POST['mudah_marah']) ? (int)$_POST['mudah_marah'] : 0;
-    $tidakBersemangat  = isset($_POST['tidak_bersemangat']) ? (int)$_POST['tidak_bersemangat'] : 0;
-    $overwhelmed       = isset($_POST['overwhelmed']) ? (int)$_POST['overwhelmed'] : 0;
-    $stresLevel        = $_POST['stres_level'] ?? '';
-    $skor              = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
+    $id               = $_POST['id'] ?? '';
+    $nama             = $_POST['nama'] ?? '';
+    $jamTidur         = $_POST['jam_tidur'] ?? '';
+    $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
+    $sulitFokus       = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
+    $susahTidur       = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
+    $mudahMarah       = isset($_POST['mudah_marah']) ? (int)$_POST['mudah_marah'] : 0;
+    $tidakBersemangat = isset($_POST['tidak_bersemangat']) ? (int)$_POST['tidak_bersemangat'] : 0;
+    $overwhelmed      = isset($_POST['overwhelmed']) ? (int)$_POST['overwhelmed'] : 0;
+    $stresLevel       = $_POST['stres_level'] ?? '';
+    $skor             = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
 
     if (empty($id) || empty($nama) || $jamTidur === '' || empty($stresLevel)) {
         echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
@@ -71,15 +70,13 @@ if ($method === 'GET') {
             overwhelmed=?, stres_level=?, skor=?
          WHERE id=? AND user_id=?"
     );
-    
-    // PERBAIKAN: bind_param diganti menjadi "sdiiiiiiisis" karena parameter skor (ke-10) adalah integer 'i'
-   $stmt->bind_param(
-    "sdiiiiiiiss",
-    $nama, $jamTidur,
-    $mudahLelah, $sulitFokus, $susahTidur,
-    $mudahMarah, $tidakBersemangat, $overwhelmed,
-    $stresLevel, $skor, $id, $userId
-);
+    $stmt->bind_param(
+        "sdiiiiiiisis",
+        $nama, $jamTidur,
+        $mudahLelah, $sulitFokus, $susahTidur,
+        $mudahMarah, $tidakBersemangat, $overwhelmed,
+        $stresLevel, $skor, $id, $userId
+    );
 
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Data berhasil diubah"]);
@@ -89,16 +86,16 @@ if ($method === 'GET') {
     $conn->close();
 
 } elseif ($method === 'POST') {
-    $nama              = $_POST['nama'] ?? '';
-    $jamTidur          = $_POST['jam_tidur'] ?? '';
-    $mudahLelah        = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
-    $sulitFokus        = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
-    $susahTidur        = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
-    $mudahMarah        = isset($_POST['mudah_marah']) ? (int)$_POST['mudah_marah'] : 0;
-    $tidakBersemangat  = isset($_POST['tidak_bersemangat']) ? (int)$_POST['tidak_bersemangat'] : 0;
-    $overwhelmed       = isset($_POST['overwhelmed']) ? (int)$_POST['overwhelmed'] : 0;
-    $stresLevel        = $_POST['stres_level'] ?? '';
-    $skor              = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
+    $nama             = $_POST['nama'] ?? '';
+    $jamTidur         = $_POST['jam_tidur'] ?? '';
+    $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
+    $sulitFokus       = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
+    $susahTidur       = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
+    $mudahMarah       = isset($_POST['mudah_marah']) ? (int)$_POST['mudah_marah'] : 0;
+    $tidakBersemangat = isset($_POST['tidak_bersemangat']) ? (int)$_POST['tidak_bersemangat'] : 0;
+    $overwhelmed      = isset($_POST['overwhelmed']) ? (int)$_POST['overwhelmed'] : 0;
+    $stresLevel       = $_POST['stres_level'] ?? '';
+    $skor             = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
 
     if (empty($nama) || $jamTidur === '' || empty($stresLevel)) {
         echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
@@ -141,7 +138,6 @@ if ($method === 'GET') {
     }
 
     $conn = getConnection();
-
     $stmt = $conn->prepare("SELECT id FROM burnout_records WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ss", $id, $userId);
     $stmt->execute();
