@@ -15,14 +15,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $conn = getConnection();
-    $stmt = $conn->prepare(
-        "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
-                mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
-                skor, tanggal, image_id,
-                IF(user_id = ?, 1, 0) as mine
-         FROM burnout_records
-         ORDER BY tanggal DESC"
-    );
+  $stmt = $conn->prepare(
+    "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
+            mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
+            skor, tanggal, image_data,
+            IF(user_id = ?, 1, 0) as mine
+     FROM burnout_records
+     ORDER BY tanggal DESC"
+);
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
