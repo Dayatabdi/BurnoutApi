@@ -15,12 +15,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $conn = getConnection();
+    // Tambahkan filter WHERE is_deleted = 0 agar data yang di-recycle bin tidak ikut tampil
     $stmt = $conn->prepare(
         "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
                 mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
                 skor, tanggal,
                 IF(user_id = ?, 1, 0) as mine
          FROM burnout_records
+         WHERE is_deleted = 0
          ORDER BY tanggal DESC"
     );
     $stmt->bind_param("s", $userId);
@@ -57,9 +59,6 @@ if ($method === 'GET') {
     $stresLevel       = $_POST['stres_level'] ?? '';
     $skor             = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
 
-    // Debug log
-    error_log("UPDATE - id: $id, userId: $userId, nama: $nama");
-
     if (empty($id) || empty($nama) || empty($stresLevel)) {
         echo json_encode(["status" => "error", "message" => "Data tidak lengkap", "id" => $id, "userId" => $userId]);
         exit;
@@ -67,7 +66,6 @@ if ($method === 'GET') {
 
     $conn = getConnection();
 
-    // Cek dulu apakah data ada
     $check = $conn->prepare("SELECT id FROM burnout_records WHERE id = ? AND user_id = ?");
     $check->bind_param("ss", $id, $userId);
     $check->execute();
@@ -91,8 +89,10 @@ if ($method === 'GET') {
             overwhelmed=?, stres_level=?, skor=?
          WHERE id=? AND user_id=?"
     );
+    
+    // FIX: String bind_param dikoreksi menjadi 12 karakter "sdiiiiiisiss"
     $stmt->bind_param(
-        "sdiiiiiiisis",
+        "sdiiiiiisiss",
         $nama, $jamTidur,
         $mudahLelah, $sulitFokus, $susahTidur,
         $mudahMarah, $tidakBersemangat, $overwhelmed,
@@ -111,6 +111,31 @@ if ($method === 'GET') {
     $conn->close();
 
 } elseif ($method === 'POST') {
+
+    // --- BLOK TAMBAHAN UNTUK RESTORE ---
+    if (isset($_POST['action']) && $_POST['action'] === 'restore') {
+        $id = $_POST['id'] ?? '';
+        
+        if (empty($id)) {
+            echo json_encode(["status" => "error", "message" => "ID tidak ditemukan untuk di-restore"]);
+            exit;
+        }
+        
+        $conn = getConnection();
+        // Ubah status is_deleted menjadi 0 (pulih)
+        $stmt = $conn->prepare("UPDATE burnout_records SET is_deleted = 0 WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ss", $id, $userId);
+        
+        if ($stmt->execute()) {
+            echo json_encode(["status" => "success", "message" => "Data berhasil dipulihkan"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => $conn->error]);
+        }
+        $conn->close();
+        exit; 
+    }
+    // -----------------------------------
+
     $nama             = $_POST['nama'] ?? '';
     $jamTidur         = $_POST['jam_tidur'] ?? '';
     $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
@@ -174,7 +199,8 @@ if ($method === 'GET') {
         exit;
     }
 
-    $stmt2 = $conn->prepare("DELETE FROM burnout_records WHERE id = ? AND user_id = ?");
+    // FIX: Mengubah DELETE menjadi UPDATE is_deleted (Soft Delete)
+    $stmt2 = $conn->prepare("UPDATE burnout_records SET is_deleted = 1 WHERE id = ? AND user_id = ?");
     $stmt2->bind_param("ss", $id, $userId);
 
     if ($stmt2->execute()) {
