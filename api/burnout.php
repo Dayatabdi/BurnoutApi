@@ -16,10 +16,10 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     $conn = getConnection();
     // Tambahkan filter WHERE is_deleted = 0 agar data yang di-recycle bin tidak ikut tampil
-    $stmt = $conn->prepare(
+   $stmt = $conn->prepare(
         "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
                 mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
-                skor, tanggal,
+                skor, image_data, tanggal,
                 IF(user_id = ?, 1, 0) as mine
          FROM burnout_records
          WHERE is_deleted = 0
@@ -40,6 +40,7 @@ if ($method === 'GET') {
         $row['mine']              = (int)$row['mine'];
         $row['jam_tidur']         = (float)$row['jam_tidur'];
         $row['skor']              = (int)$row['skor'];
+        $row['image_data']        = $row['image_data'];
         $data[] = $row;
     }
 
