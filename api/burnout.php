@@ -47,7 +47,7 @@ if ($method === 'GET') {
 } elseif ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
     $id               = $_POST['id'] ?? '';
     $nama             = $_POST['nama'] ?? '';
-    $jamTidur         = $_POST['jam_tidur'] ?? '';
+    $jamTidur         = (float)($_POST['jam_tidur'] ?? 0); // cast ke float!
     $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
     $sulitFokus       = isset($_POST['sulit_fokus']) ? (int)$_POST['sulit_fokus'] : 0;
     $susahTidur       = isset($_POST['susah_tidur']) ? (int)$_POST['susah_tidur'] : 0;
@@ -57,7 +57,7 @@ if ($method === 'GET') {
     $stresLevel       = $_POST['stres_level'] ?? '';
     $skor             = isset($_POST['skor']) ? (int)$_POST['skor'] : 0;
 
-    if (empty($id) || empty($nama) || $jamTidur === '' || empty($stresLevel)) {
+    if (empty($id) || empty($nama) || empty($stresLevel)) {
         echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
         exit;
     }
@@ -84,8 +84,8 @@ if ($method === 'GET') {
         echo json_encode(["status" => "error", "message" => $conn->error]);
     }
     $conn->close();
-
-} elseif ($method === 'POST') {
+}
+elseif ($method === 'POST') {
     $nama             = $_POST['nama'] ?? '';
     $jamTidur         = $_POST['jam_tidur'] ?? '';
     $mudahLelah       = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
