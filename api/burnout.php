@@ -73,13 +73,13 @@ if ($method === 'GET') {
     );
     
     // PERBAIKAN: bind_param diganti menjadi "sdiiiiiiisis" karena parameter skor (ke-10) adalah integer 'i'
-    $stmt->bind_param(
-        "sdiiiiiiisis",
-        $nama, $jamTidur,
-        $mudahLelah, $sulitFokus, $susahTidur,
-        $mudahMarah, $tidakBersemangat, $overwhelmed,
-        $stresLevel, $skor, $id, $userId
-    );
+   $stmt->bind_param(
+    "sdiiiiiiiss",
+    $nama, $jamTidur,
+    $mudahLelah, $sulitFokus, $susahTidur,
+    $mudahMarah, $tidakBersemangat, $overwhelmed,
+    $stresLevel, $skor, $id, $userId
+);
 
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Data berhasil diubah"]);
