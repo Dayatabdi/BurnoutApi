@@ -1,10 +1,10 @@
 <?php
 function getConnection() {
-    $host = 'mysql-61c9485-dayatabdi7690-0df1.e.aivencloud.com';
-    $port = 12174;
-    $user = 'avnadmin';
-   $pass = 'AVNS_P255Ll9ne3vFk-FQPUU';
-    $db   = 'defaultdb';
+    $host = getenv('DB_HOST') ?: 'mysql-61c9485-dayatabdi7690-0df1.e.aivencloud.com';
+    $port = getenv('DB_PORT') ?: 12174;
+    $user = getenv('DB_USER') ?: 'avnadmin';
+    $pass = getenv('DB_PASSWORD') ?: 'AVNS_P255Ll9ne3vFk-FQPUU';
+    $db   = getenv('DB_NAME') ?: 'defaultdb';
 
     $conn = new mysqli($host, $user, $pass, $db, $port);
     if ($conn->connect_error) {
