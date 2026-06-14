@@ -62,34 +62,27 @@ if ($method === 'GET') {
     }
 
     // Handle upload gambar
-    $imageId = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $imageId = uniqid('img_', true);
-        $uploadDir = __DIR__ . '/images/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-        $dest = $uploadDir . $imageId . '.jpg';
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
-            echo json_encode(["status" => "error", "message" => "Gagal upload gambar"]);
-            exit;
-        }
-    }
+ $imageData = null;
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    $imageData = base64_encode(file_get_contents($_FILES['image']['tmp_name']));
+}
 
-    $id = uniqid('bo_', true);
-    $conn = getConnection();
-    $stmt = $conn->prepare(
-        "INSERT INTO burnout_records
-         (id, user_id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
-          mudah_marah, tidak_bersemangat, overwhelmed, stres_level, skor, image_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    );
-    $stmt->bind_param(
-        "sssdiiiiiisis",
-        $id, $userId, $nama, $jamTidur,
-        $mudahLelah, $sulitFokus, $susahTidur,
-        $mudahMarah, $tidakBersemangat, $overwhelmed,
-        $stresLevel, $skor, $imageId
-    );
-
+   $id = uniqid('bo_', true);
+$conn = getConnection();
+$stmt = $conn->prepare(
+    "INSERT INTO burnout_records
+     (id, user_id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
+      mudah_marah, tidak_bersemangat, overwhelmed, stres_level, skor, image_data)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+);
+$stmt->bind_param(
+    "sssdiiiiiisis",
+    $id, $userId, $nama, $jamTidur,
+    $mudahLelah, $sulitFokus, $susahTidur,
+    $mudahMarah, $tidakBersemangat, $overwhelmed,
+    $stresLevel, $skor, $imageData
+);
+    
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Data berhasil disimpan"]);
     } else {
