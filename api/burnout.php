@@ -149,7 +149,7 @@ if ($method === 'GET') {
     );
 
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Data berhasil disimpan"]);
+        echo json_encode(["status" => "success", "message" => "Data berhasil disimpan", "id" => $id]);
     } else {
         echo json_encode(["status" => "error", "message" => $conn->error]);
     }
