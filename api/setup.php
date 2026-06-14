@@ -3,7 +3,7 @@ require_once 'db_config.php';
 
 $conn = getConnection();
 
-// Drop tabel lama dan buat ulang dengan kolom image_data
+// Drop tabel lama dan buat ulang dengan kolom image_data dan is_deleted
 $conn->query("DROP TABLE IF EXISTS burnout_records");
 
 $sql = "CREATE TABLE burnout_records (
@@ -20,11 +20,12 @@ $sql = "CREATE TABLE burnout_records (
     stres_level VARCHAR(50),
     skor INT DEFAULT 0,
     image_data MEDIUMTEXT,
-    tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0
 )";
 
 if ($conn->query($sql)) {
-    echo json_encode(["status" => "success", "message" => "Tabel berhasil dibuat ulang!"]);
+    echo json_encode(["status" => "success", "message" => "Tabel berhasil dibuat ulang dengan kolom is_deleted!"]);
 } else {
     echo json_encode(["status" => "error", "message" => $conn->error]);
 }
