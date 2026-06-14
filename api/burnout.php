@@ -45,7 +45,7 @@ if ($method === 'GET') {
     $conn->close();
 
 
-} } elseif ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
+} elseif ($method === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
     $id                 = $_POST['id'] ?? '';
     $nama               = $_POST['nama'] ?? '';
     $jamTidur           = $_POST['jam_tidur'] ?? '';
