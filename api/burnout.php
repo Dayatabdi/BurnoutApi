@@ -44,7 +44,52 @@ if ($method === 'GET') {
     echo json_encode($data);
     $conn->close();
 
-} elseif ($method === 'POST') {
+
+} elseif ($method === 'PUT') {
+    parse_str(file_get_contents("php://input"), $_PUT);
+    
+    $id                 = $_PUT['id'] ?? '';
+    $nama               = $_PUT['nama'] ?? '';
+    $jamTidur           = $_PUT['jam_tidur'] ?? '';
+    $mudahLelah         = isset($_PUT['mudah_lelah']) ? (int)$_PUT['mudah_lelah'] : 0;
+    $sulitFokus         = isset($_PUT['sulit_fokus']) ? (int)$_PUT['sulit_fokus'] : 0;
+    $susahTidur         = isset($_PUT['susah_tidur']) ? (int)$_PUT['susah_tidur'] : 0;
+    $mudahMarah         = isset($_PUT['mudah_marah']) ? (int)$_PUT['mudah_marah'] : 0;
+    $tidakBersemangat   = isset($_PUT['tidak_bersemangat']) ? (int)$_PUT['tidak_bersemangat'] : 0;
+    $overwhelmed        = isset($_PUT['overwhelmed']) ? (int)$_PUT['overwhelmed'] : 0;
+    $stresLevel         = $_PUT['stres_level'] ?? '';
+    $skor               = isset($_PUT['skor']) ? (int)$_PUT['skor'] : 0;
+
+    if (empty($id) || empty($nama) || $jamTidur === '' || empty($stresLevel)) {
+        echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
+        exit;
+    }
+
+    $conn = getConnection();
+    $stmt = $conn->prepare(
+        "UPDATE burnout_records SET
+            nama=?, jam_tidur=?, mudah_lelah=?, sulit_fokus=?,
+            susah_tidur=?, mudah_marah=?, tidak_bersemangat=?,
+            overwhelmed=?, stres_level=?, skor=?
+         WHERE id=? AND user_id=?"
+    );
+    $stmt->bind_param(
+        "sdiiiiiiisis",
+        $nama, $jamTidur,
+        $mudahLelah, $sulitFokus, $susahTidur,
+        $mudahMarah, $tidakBersemangat, $overwhelmed,
+        $stresLevel, $skor, $id, $userId
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode(["status" => "success", "message" => "Data berhasil diubah"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => $conn->error]);
+    }
+    $conn->close();
+
+    
+}elseif ($method === 'POST') {
     $nama               = $_POST['nama'] ?? '';
     $jamTidur           = $_POST['jam_tidur'] ?? '';
     $mudahLelah         = isset($_POST['mudah_lelah']) ? (int)$_POST['mudah_lelah'] : 0;
