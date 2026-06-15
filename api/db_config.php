@@ -8,7 +8,7 @@ function getConnection() {
 
     $conn = mysqli_init();
     
-    // Karena Aiven mewajibkan SSL (SSL mode: REQUIRED)
+   
     
     if (!$conn->real_connect($host, $user, $pass, $db, (int)$port, null, MYSQLI_CLIENT_SSL)) {
         http_response_code(500);
@@ -16,7 +16,7 @@ function getConnection() {
         exit;
     }
 
-    // Disable strict mode
+  
     $conn->query("SET SESSION sql_mode = ''");
     
     return $conn;
