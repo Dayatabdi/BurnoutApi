@@ -93,8 +93,7 @@ if ($method === 'GET') {
             overwhelmed=?, stres_level=?, skor=?
          WHERE id=? AND user_id=?"
     );
-    
-    // FIX: String bind_param dikoreksi menjadi 12 karakter "sdiiiiiisiss"
+
     $stmt->bind_param(
         "sdiiiiiisiss",
         $nama, $jamTidur,
@@ -116,7 +115,7 @@ if ($method === 'GET') {
 
 } elseif ($method === 'POST') {
 
-    // --- BLOK TAMBAHAN UNTUK RESTORE ---
+   
     if (isset($_POST['action']) && $_POST['action'] === 'restore') {
         $id = $_POST['id'] ?? '';
         
@@ -126,7 +125,7 @@ if ($method === 'GET') {
         }
         
         $conn = getConnection();
-        // Ubah status is_deleted menjadi 0 (pulih)
+ 
         $stmt = $conn->prepare("UPDATE burnout_records SET is_deleted = 0 WHERE id = ? AND user_id = ?");
         $stmt->bind_param("ss", $id, $userId);
         
@@ -138,7 +137,7 @@ if ($method === 'GET') {
         $conn->close();
         exit; 
     }
-    // -----------------------------------
+    
 
     $nama             = $_POST['nama'] ?? '';
     $jamTidur         = $_POST['jam_tidur'] ?? '';
@@ -203,7 +202,7 @@ if ($method === 'GET') {
         exit;
     }
 
-    // FIX: Mengubah DELETE menjadi UPDATE is_deleted (Soft Delete)
+
     $stmt2 = $conn->prepare("UPDATE burnout_records SET is_deleted = 1 WHERE id = ? AND user_id = ?");
     $stmt2->bind_param("ss", $id, $userId);
 
