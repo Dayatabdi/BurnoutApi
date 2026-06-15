@@ -6,10 +6,13 @@ function getConnection() {
     $pass = getenv('DB_PASSWORD') ?: 'AVNS_P255Ll9ne3vFk-FQPUU';
     $db   = getenv('DB_NAME') ?: 'defaultdb';
 
-    $conn = new mysqli($host, $user, $pass, $db, (int)$port);
-    if ($conn->connect_error) {
+    $conn = mysqli_init();
+    
+    // Karena Aiven mewajibkan SSL (SSL mode: REQUIRED)
+    
+    if (!$conn->real_connect($host, $user, $pass, $db, (int)$port, null, MYSQLI_CLIENT_SSL)) {
         http_response_code(500);
-        echo json_encode(["status" => "error", "message" => "DB connection failed: " . $conn->connect_error]);
+        echo json_encode(["status" => "error", "message" => "DB connection failed: " . mysqli_connect_error()]);
         exit;
     }
 
@@ -18,6 +21,7 @@ function getConnection() {
     
     return $conn;
 }
+
 function getAuthEmail() {
     $headers = getallheaders();
     return $headers['Authorization'] ?? $headers['authorization'] ?? null;
