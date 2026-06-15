@@ -15,16 +15,19 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $conn = getConnection();
-    // Tambahkan filter WHERE is_deleted = 0 agar data yang di-recycle bin tidak ikut tampil
-   $stmt = $conn->prepare(
+    
+  
+    $stmt = $conn->prepare(
         "SELECT id, nama, jam_tidur, mudah_lelah, sulit_fokus, susah_tidur,
                 mudah_marah, tidak_bersemangat, overwhelmed, stres_level,
                 skor, image_data, tanggal,
-                IF(user_id = ?, 1, 0) as mine
+                1 as mine
          FROM burnout_records
-         WHERE is_deleted = 0
+         WHERE is_deleted = 0 AND user_id = ?
          ORDER BY tanggal DESC"
     );
+    
+    // Bind parameter untuk user_id
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
