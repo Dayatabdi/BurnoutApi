@@ -3,7 +3,7 @@ require_once 'db_config.php';
 
 $conn = getConnection();
 
-// Drop tabel lama dan buat ulang dengan kolom image_data dan is_deleted
+
 $conn->query("DROP TABLE IF EXISTS burnout_records");
 
 $sql = "CREATE TABLE burnout_records (
@@ -25,7 +25,7 @@ $sql = "CREATE TABLE burnout_records (
 )";
 
 if ($conn->query($sql)) {
-    echo json_encode(["status" => "success", "message" => "Tabel berhasil dibuat ulang dengan kolom is_deleted!"]);
+    echo json_encode(["status" => "success", "message" => "Tabel berhasil dibuat"]);
 } else {
     echo json_encode(["status" => "error", "message" => $conn->error]);
 }
