@@ -2,20 +2,14 @@ name: Keep Aiven Database Alive
 
 on:
   schedule:
-    # Berjalan otomatis setiap 6 jam (Menit 0, Jam kelipatan 6)
-    # Waktu menggunakan standar UTC
     - cron: '0 */6 * * *'
-  
-  # Baris di bawah ini opsional, gunanya agar kamu bisa klik tombol "Run workflow" 
-  # secara manual lewat tab Actions di GitHub untuk tes pertama kali.
   workflow_dispatch:
 
 jobs:
   ping-api:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Vercel API Endpoint
+      - name: Ping Vercel & Aiven
         run: |
-          curl -s -X GET "https://burnout-api.vercel.app/burnout.php" \
-          -H "Authorization: internal-keep-alive-ping"
-          echo "Ping berhasil dikirim ke Vercel API pada $(date)"
+          curl -s -X GET "https://burnout-api.vercel.app/ping.php"
+          echo "Ping berhasil dikirim pada $(date)"
